@@ -1,23 +1,11 @@
 import "./App.css";
 import { useEffect } from "react";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import Home from "./pages/Home";
-
-const router = createBrowserRouter([
-  { path: "/", element: <Home /> },
-  { path: "/dashboard", element: <Dashboard /> }
-]);
-
-export default function App() {
-  return <RouterProvider router={router} />;
-}
-
+import { RouterProvider, createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { Toaster } from "sonner";
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
 
 // Pages
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -72,123 +60,122 @@ function PublicRoute({ children }) {
   return children;
 }
 
-function AppRoutes() {
+// KYC interceptor wrapper
+function KycInterceptor({ children }) {
   const navigate = useNavigate();
 
-  // Global KYC-required interceptor: any 403 with {error:'kyc_required'}
-  // from the backend triggers a toast + redirect to /onboarding so the
-  // user always knows why a transaction was blocked.
   useEffect(() => {
     const handler = (e) => {
-      const status = e.detail?.kyc_status || 'NOT_STARTED';
-      toast.error('KYC verification required', {
+      const status = e.detail?.kyc_status || "NOT_STARTED";
+      toast.error("KYC verification required", {
         description: `Status: ${status} — complete identity verification to transact.`,
-        action: { label: 'Verify now', onClick: () => navigate('/onboarding') },
+        action: { label: "Verify now", onClick: () => navigate("/onboarding") },
       });
-      // Best-effort auto-redirect for the no-action case
-      setTimeout(() => navigate('/onboarding'), 1500);
+      setTimeout(() => navigate("/onboarding"), 1500);
     };
-    window.addEventListener('neonoble:kyc-required', handler);
-    return () => window.removeEventListener('neonoble:kyc-required', handler);
+
+    window.addEventListener("neonoble:kyc-required", handler);
+    return () => window.removeEventListener("neonoble:kyc-required", handler);
   }, [navigate]);
 
-  return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Home />} />
-      
-      <Route
-        path="/login"
-        element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        }
-      />
-      
-      <Route
-        path="/signup"
-        element={
-          <PublicRoute>
-            <Signup />
-          </PublicRoute>
-        }
-      />
-      
-      <Route
-        path="/dev/login"
-        element={
-          <PublicRoute>
-            <DevLogin />
-          </PublicRoute>
-        }
-      />
-
-      {/* Protected Routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Developer Portal (requires developer role) */}
-      <Route
-        path="/dev"
-        element={
-          <ProtectedRoute requireDeveloper>
-            <DevPortal />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Transak compliance demo (auth not required — non-custodial demo flow) */}
-      <Route path="/transak" element={<TransakDemo />} />
-
-      {/* Password recovery */}
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route
-        path="/change-password"
-        element={
-          <ProtectedRoute>
-            <ChangePassword />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* CASP Admin Console */}
-      <Route path="/admin/*" element={<Admin />} />
-
-      {/* Customer Onboarding (self-service KYC) */}
-      <Route
-        path="/onboarding"
-        element={
-          <ProtectedRoute>
-            <Onboarding />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Catch all - redirect to home */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
+  return children;
 }
 
+// Router v7 definition
+const router = createBrowserRouter([
+  // Public
+  { path: "/", element: <Home /> },
+
+  {
+    path: "/login",
+    element: (
+      <PublicRoute>
+        <Login />
+      </PublicRoute>
+    ),
+  },
+
+  {
+    path: "/signup",
+    element: (
+      <PublicRoute>
+        <Signup />
+      </PublicRoute>
+    ),
+  },
+
+  {
+    path: "/dev/login",
+    element: (
+      <PublicRoute>
+        <DevLogin />
+      </PublicRoute>
+    ),
+  },
+
+  // Protected
+  {
+    path: "/dashboard",
+    element: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
+  },
+
+  {
+    path: "/dev",
+    element: (
+      <ProtectedRoute requireDeveloper>
+        <DevPortal />
+      </ProtectedRoute>
+    ),
+  },
+
+  // Public demo
+  { path: "/transak", element: <TransakDemo /> },
+
+  // Password recovery
+  { path: "/forgot-password", element: <ForgotPassword /> },
+  { path: "/reset-password", element: <ResetPassword /> },
+
+  {
+    path: "/change-password",
+    element: (
+      <ProtectedRoute>
+        <ChangePassword />
+      </ProtectedRoute>
+    ),
+  },
+
+  // Admin console
+  { path: "/admin/*", element: <Admin /> },
+
+  // Onboarding (protected)
+  {
+    path: "/onboarding",
+    element: (
+      <ProtectedRoute>
+        <Onboarding />
+      </ProtectedRoute>
+    ),
+  },
+
+  // Catch-all
+  { path: "*", element: <Navigate to="/" replace /> },
+]);
+
+// App wrapper
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-          <Toaster />
-        </AuthProvider>
-      </BrowserRouter>
-    </div>
+    <AuthProvider>
+      <KycInterceptor>
+        <RouterProvider router={router} />
+        <Toaster />
+      </KycInterceptor>
+    </AuthProvider>
   );
 }
 
+export default App;
 export default App;
