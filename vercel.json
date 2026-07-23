@@ -24,10 +24,3 @@
     }
   ]
 }
-{
-  "build": {
-    "env": {
-      "NPM_CONFIG_CACHE": "false"
-    }
-  }
-}
