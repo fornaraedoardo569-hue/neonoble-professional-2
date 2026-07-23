@@ -1,6 +1,12 @@
 import "./App.css";
 import { useEffect } from "react";
-import { RouterProvider, createBrowserRouter, Navigate } from "react-router-dom";
+import {
+  RouterProvider,
+  createBrowserRouter,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
+
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Toaster, toast } from "sonner";
 
@@ -18,7 +24,7 @@ import ChangePassword from "./pages/ChangePassword";
 import Admin from "./pages/Admin";
 import Onboarding from "./pages/Onboarding";
 
-// Protected Route Component
+// Protected Route
 function ProtectedRoute({ children, requireDeveloper = false }) {
   const { isAuthenticated, isDeveloper, loading } = useAuth();
 
@@ -41,7 +47,7 @@ function ProtectedRoute({ children, requireDeveloper = false }) {
   return children;
 }
 
-// Public Route (redirect if logged in)
+// Public Route
 function PublicRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
 
@@ -60,17 +66,22 @@ function PublicRoute({ children }) {
   return children;
 }
 
-// KYC interceptor wrapper
+// KYC Interceptor
 function KycInterceptor({ children }) {
   const navigate = useNavigate();
 
   useEffect(() => {
     const handler = (e) => {
       const status = e.detail?.kyc_status || "NOT_STARTED";
+
       toast.error("KYC verification required", {
         description: `Status: ${status} — complete identity verification to transact.`,
-        action: { label: "Verify now", onClick: () => navigate("/onboarding") },
+        action: {
+          label: "Verify now",
+          onClick: () => navigate("/onboarding"),
+        },
       });
+
       setTimeout(() => navigate("/onboarding"), 1500);
     };
 
@@ -81,9 +92,8 @@ function KycInterceptor({ children }) {
   return children;
 }
 
-// Router v7 definition
+// Router v7
 const router = createBrowserRouter([
-  // Public
   { path: "/", element: <Home /> },
 
   {
@@ -113,7 +123,6 @@ const router = createBrowserRouter([
     ),
   },
 
-  // Protected
   {
     path: "/dashboard",
     element: (
@@ -132,10 +141,8 @@ const router = createBrowserRouter([
     ),
   },
 
-  // Public demo
   { path: "/transak", element: <TransakDemo /> },
 
-  // Password recovery
   { path: "/forgot-password", element: <ForgotPassword /> },
   { path: "/reset-password", element: <ResetPassword /> },
 
@@ -148,10 +155,8 @@ const router = createBrowserRouter([
     ),
   },
 
-  // Admin console
   { path: "/admin/*", element: <Admin /> },
 
-  // Onboarding (protected)
   {
     path: "/onboarding",
     element: (
@@ -161,7 +166,6 @@ const router = createBrowserRouter([
     ),
   },
 
-  // Catch-all
   { path: "*", element: <Navigate to="/" replace /> },
 ]);
 
@@ -177,5 +181,4 @@ function App() {
   );
 }
 
-export default App;
 export default App;
