@@ -1,6 +1,18 @@
 import "./App.css";
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import Home from "./pages/Home";
+
+const router = createBrowserRouter([
+  { path: "/", element: <Home /> },
+  { path: "/dashboard", element: <Dashboard /> }
+]);
+
+export default function App() {
+  return <RouterProvider router={router} />;
+}
+
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Toaster } from "sonner";
 import { toast } from "sonner";
