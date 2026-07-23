@@ -1,0 +1,65 @@
+{
+  "summary": "Sprint 1 CASP Operating Stack — full backend regression (36/36 pytest pass) + frontend admin console smoke (sidebar nav, dashboard KPIs, USER access-denied, 8 subpages). All 7 MiCAR blocks operational with mock provider adapters. 4-eye OTC approval enforced correctly. Hash-chained audit log verifies clean. Legacy /api/auth/* + Transak partner key still respond.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_casp.py",
+    "/app/test_reports/pytest/iter5.xml"
+  ],
+  "passed_tests_breakdown": {
+    "RBAC (unauth=401, USER role=403 on dashboard & kyc)": "3/3",
+    "Dashboard KPI shape (kyc/aml/otc/wallets/complaints/capital)": "1/1",
+    "Block1 KYC/KYB/Risk (list, filter, ratings)": "4/4",
+    "Block2 AML (list, severity filter, Chainalysis screen-address mock 0-100 score, MLRO-only resolve)": "4/4",
+    "Block3 Custody (list 7 wallets HOT+COLD, reconcile, freeze, PoR latest, PoR generate)": "5/5",
+    "Block4 OTC + 4-eye (list 5 seeded, create >50k AWAITING_APPROVAL, self-approval rejected 400 'self_approval_forbidden', different-actor approve 200, execute->EXECUTED)": "5/5",
+    "Block5 Reporting (list, MiCAR T+1 generate, capital snapshot)": "3/3",
+    "Block6 Protection (complaints list+create, 4 disclosures)": "3/3",
+    "Block7 Governance (5 admins, incidents, conflicts)": "3/3",
+    "Audit (hash-chain list newest-first, verify replays clean {verified:true, checked:24+})": "2/2",
+    "Regression (auth/login, auth/me, transak/widget-url responds)": "3/3"
+  },
+  "frontend_assertions_verified": [
+    "Unauthenticated /admin -> 302 redirect to /login?redirect=/admin",
+    "casp-admin login -> /dashboard then /admin loads CASP CONSOLE with sidebar containing exactly 9 nav items: Dashboard, KYC / KYB, AML & Alerts, Treasury, OTC Desk B2B, Reporting, Customer Protection, Governance, Audit Log",
+    "Dashboard KPI cards render all 7 tiles: KYC PENDING 2 / 3 approved; AML OPEN ALERTS 5 / 2 critical; OTC PENDING 3 / €900,000 settled 30d; CUSTODIAL WALLETS 7 hot+cold; OPEN COMPLAINTS 4 SLA 15d; CAPITAL ADEQUACY €280,000 COMPLIANT 224%; AUDIT CHAIN VERIFIED 24 entries",
+    "All 8 subpages /admin/{compliance,aml,treasury,otc,reporting,protection,governance,audit} load with 0 error-class elements and 0 page-error events",
+    "institutional@bigcorp.example.com (base role=USER) hitting /admin renders 'Access denied — The CASP back-office is restricted to ADMIN users. Your account (institutional@bigcorp.example.com) has role USER.' panel",
+    "Header shows MICAR · REG. (EU) 2023/1114 badge + 'CASP Operating Stack — Shadow Mode ● Live v0.1.0'"
+  ],
+  "rbac_matrix_verified": {
+    "no_token -> /api/casp/*": "401/403 (handled by global auth dep)",
+    "USER role -> /api/casp/dashboard": "403",
+    "USER role -> /api/casp/kyc": "403",
+    "casp-trader (base ADMIN, casp OTC_TRADER) -> create OTC quote": "200",
+    "casp-trader self-approves own quote -> 400 'self approval forbidden' (4-eye guard fires even for super-admin)",
+    "casp-mlro approves trader's quote -> 200",
+    "casp-trader executes approved quote -> 200 EXECUTED",
+    "casp-mlro resolves AML alert -> 200 (MLRO-only endpoint)"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "middleware/casp_rbac.py: super-admin bypass (base role=ADMIN returns immediately with casp_roles=['ADMIN']) is documented and intentional — but it means seeded specialised users (casp-mlro, casp-trader, casp-risk, casp-treasury) ALL carry base ADMIN role per seed_casp.py, so the CASP role gate is effectively bypassed for them. The test 'OTC_TRADER blocked from /aml/alerts/{id}/resolve which needs MLRO' from the request CANNOT be exercised end-to-end because casp-trader has base ADMIN and therefore inherits MLRO permissions too. Mitigation suggestion to main agent: when seeding non-super-admin specialists, set base role to e.g. CASP_OPERATOR (a new sub-admin role) instead of ADMIN, so casp-role gates actually constrain them. The 4-eye guard (self-approval) is correctly enforced regardless, which is the real safety net.",
+    "routes/casp.py:259-261 and :267-269: pattern `if result.get('error'): raise HTTPException(400, detail=result)` — clean and works, but consider raising specific error codes from the service layer instead of marshalling a dict (less risk of leaking internal state in detail body).",
+    "routes/casp.py:344: 'Only ADMIN can manage admin users' — this guard is correct but the dependency already lets non-super CASP roles in via require_any_admin; consider making it a dedicated require_super_admin dependency for clarity.",
+    "Audit hash-chain (24 entries after seed + 12 new test mutations) verifies in <30ms — implementation is solid. Verified field is correctly true after running test_casp.py end-to-end.",
+    "Provider adapters (Sumsub/Chainalysis/Fireblocks/Notabene) intentionally in MOCK mode per spec — NOT a bug. Screen-address returns deterministic risk_score in [0,100] and auto-creates CRITICAL alert when score>=85, as expected."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_casp.py (new — 36 pytest cases covering all 7 MiCAR blocks + RBAC matrix + 4-eye + audit verify + legacy regression)"
+  ],
+  "success_rate": {"backend": "100% (36/36)", "frontend": "100% (all 6 assertion groups)"},
+  "test_credentials": "From /app/memory/test_credentials.md — CASP back-office seeded accounts, password CaspAdmin!2026 (casp-admin / casp-mlro / casp-trader / casp-risk / casp-treasury / institutional@bigcorp). Ephemeral USER for RBAC negative test created via /api/auth/register with TEST_<uuid>@example.com.",
+  "seed_data_creation": "Used existing seeded data from scripts/seed_casp.py. Test side-effects: 1 freshly resolved AML alert, 1 reconciliation, 1 frozen wallet, 1 new PoR snapshot, 1 OTC quote (BUY 5 BTC @ €60k, APPROVED by MLRO then EXECUTED by trader), 1 MiCAR report, 1 capital snapshot (€280k), 1 TEST complaint. All TEST_ prefixed where applicable.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "CASP Sprint 1 fully green. When provider adapters switch from MOCK to LIVE in future sprints, re-run /app/backend/tests/test_casp.py — TestBlock2_AML.test_screen_address_returns_risk_score and TestBlock3_Custody (PoR/freeze/reconcile) will need live-key fixtures. RBAC test 'OTC_TRADER blocked from MLRO operation' is currently NOT enforceable because seeded specialists all carry base role=ADMIN (super-admin bypass). Recommend main agent introduces a sub-admin base role for specialists if true role isolation is needed beyond the 4-eye guard. The 4-eye self-approval guard IS enforced and is the operational safety net.",
+  "rca of the issue": "No bugs found. One semantic gap documented above (super-admin bypass makes per-CASP-role gating moot for seeded specialists). The 4-eye OTC self-approval rule overrides the super-admin shortcut, so even casp-trader (base ADMIN) cannot self-approve their own quote — confirmed 400 with self_approval_forbidden detail."
+}

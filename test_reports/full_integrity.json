@@ -1,0 +1,158 @@
+{
+  "ran_at": "2026-06-02T16:41:46.003911+00:00",
+  "total": 30,
+  "passed": 30,
+  "failed": 0,
+  "results": [
+    {
+      "name": "register user",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "forgot-password returns 200 (no enumeration)",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "reset token issued",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "reset-password with valid token",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "old password rejected",
+      "ok": true,
+      "extra": "code=401"
+    },
+    {
+      "name": "new password accepted",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "reset token cannot be reused",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "invalid reset token rejected",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "change-password (authed)",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "change-password rejects wrong current",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "ramp/onramp/quote blocked without KYC",
+      "ok": true,
+      "extra": "d={'error': 'kyc_required', 'kyc_status': 'NOT_STARTED', 'message': 'Identity verification is required before transacting. Please complete KYC at /onboarding.'}"
+    },
+    {
+      "name": "ramp/offramp/quote blocked without KYC",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "ramp/onramp/execute blocked without KYC",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "ramp/offramp/execute blocked without KYC",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "transak/widget-url blocked without KYC",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "ramp/onramp/quote unauthed \u2192 401",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "GET /onboarding/my-kyc NOT_STARTED",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "start KYC",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "upload ID_FRONT",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "upload SELFIE",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "KYC now IN_REVIEW",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "onramp/quote blocked while IN_REVIEW",
+      "ok": true,
+      "extra": "d={'error': 'kyc_required', 'kyc_status': 'IN_REVIEW', 'message': 'Identity verification is required before transacting. Please complete KYC at /onboarding.'}"
+    },
+    {
+      "name": "MLRO approves KYC",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "Customer sees APPROVED",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "ramp/onramp/quote now allowed",
+      "ok": true,
+      "extra": "quote_id=quote_6a"
+    },
+    {
+      "name": "transak/widget-url now reaches upstream (409 KYB pending expected)",
+      "ok": true,
+      "extra": "detail_starts=TRANSAK_KYB_PENDING: API credentials are"
+    },
+    {
+      "name": "ADMIN bypasses KYC gate",
+      "ok": true,
+      "extra": "quote_id=quote_50"
+    },
+    {
+      "name": "/casp/dashboard",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "audit hash-chain verified",
+      "ok": true,
+      "extra": "checked=97"
+    },
+    {
+      "name": "sanctions/status",
+      "ok": true,
+      "extra": ""
+    }
+  ]
+}

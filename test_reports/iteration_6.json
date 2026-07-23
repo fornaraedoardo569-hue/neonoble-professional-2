@@ -1,0 +1,37 @@
+{
+  "summary": "End-to-end testing of the First Customer Onboarding Flow (P0). Backend: 14/14 pytest cases pass in /app/backend/tests/test_onboarding.py covering auth gating (401), happy-path (NOT_STARTED -> kyc/start -> document upload -> IN_REVIEW with personal info preserved), invalid doc_type (400), oversized doc (413), upload-without-start (400), cross-user isolation (User B cannot see User A's KYC), MLRO admin queue listing /api/casp/kyc?status=IN_REVIEW with full_name/nationality preserved, MLRO APPROVE decision flowing back to /api/onboarding/my-kyc as APPROVED, and regression for /api/auth/login, /api/auth/me, /api/casp/dashboard, /api/transak/widget-url. Frontend: validated via Playwright that /onboarding requires auth (redirects to /login when unauth), the dashboard KYC banner (data-testid=kyc-onboarding-banner) shows 'Complete identity verification' when NOT_STARTED, clicking it navigates to /onboarding, all 4 stepper data-testids render, personal-info continue advances to step 1 showing upload-id-front, and after a document upload the banner text updates to 'Your KYC is under review by our compliance team'. .env env updates (live Stripe keys, new Transak developer key/secret, STAGING) did not break /api/transak/widget-url.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_onboarding.py",
+    "/app/test_reports/pytest/iter6_onboarding.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "routes/onboarding.py uploads accept ANY doc_type-conformant base64 string without validating it is actually valid base64 or a real image (validate via base64.b64decode + magic-byte check, e.g., reject non-image MIME outside image/jpeg|png|pdf).",
+    "Size limit at line 80 checks len(body.document_b64) > 8_000_000 (base64 chars), so the comment '~6MB' is correct but the doc says '>8MB' in the test request. The implementation already aligns with the test expectation (413 at >8M chars).",
+    "Onboarding endpoints don't check user role — that's intentional for self-service, but a CASP_ADMIN logging in as the same identity would also use this; not a bug, just worth noting.",
+    "kyc/start is not idempotent at the route level; consecutive calls bump updated_at without changing kyc_id, which is fine, but consider 409 if the user already has a record in IN_REVIEW/APPROVED to avoid accidental data overwrite.",
+    "Dashboard.js silently swallows the onboardingApi.myKyc() error (.catch(() => {})) — at minimum log to console.error so a backend regression doesn't hide the banner silently."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_onboarding.py"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "100%"
+  },
+  "test_credentials": "Ephemeral users registered via /api/auth/register (TEST_<uuid>@example.com / TestPass123!). MLRO seeded account: casp-mlro@neonoble.example.com / CaspAdmin!2026.",
+  "seed_data_creation": "No persistent seed data — every test uses TEST_-prefixed ephemeral users. No cleanup hooks added; records remain in casp_kyc for traceability. Main agent may wish to add a /scripts/wipe_test_kyc.py later.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Onboarding flow is fully working backend+frontend. All 14 pytest cases under /app/backend/tests/test_onboarding.py pass. Regression confirmed for /api/transak/widget-url after the live-Stripe / staging-Transak .env change. If retesting, run: cd /app && python -m pytest backend/tests/test_onboarding.py -v. For UI: register user, set token in localStorage, /dashboard -> banner -> click -> /onboarding -> stepper.",
+  "rca of the issue": "N/A — no issues found. Earlier crash (missing onboarding import in server.py) was already resolved by the main agent before this iteration; verified by green tests."
+}

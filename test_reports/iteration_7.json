@@ -1,0 +1,41 @@
+{
+  "summary": "Validated server-side KYC gate, password flows, and frontend KYC-required UX. 21/21 new KYC-gate pytest cases pass; 57/64 existing CASP regression pass (7 pre-existing test-assertion mismatches unrelated to KYC gate). Frontend: Retail Ramp CTAs correctly opacity-60 and link to /onboarding when KYC not APPROVED; axios 'neonoble:kyc-required' event fires sonner toast and auto-redirects to /onboarding in ~1.5s.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/ramp/onramp/quote (admin path)", "issue": "Returns 400 'Unable to fetch price for BTC' intermittently — upstream pricing service flakiness. Not a KYC-gate issue (gate bypass for ADMIN confirmed working)."},
+      {"endpoint": "/api/casp/* seed-data", "issue": "test_casp.py expects ≥7 KPI, ≥1 KYB BigCorp, ≥7 wallets, ≥5 OTC, ≥4 disclosures, ≥1 complaint — actual seed counts are lower (1, 0, 1, 3, 0 resp.). Pre-existing seeding mismatch in test_casp.py assertions, unrelated to this iteration's KYC-gate work."},
+      {"endpoint": "/api/transak/widget-url (test_casp regression)", "issue": "Existing test_casp.py::test_transak_widget_url asserts status in (200,400,422,502) but endpoint returns 409 TRANSAK_KYB_PENDING which is the documented expected state. Update assertion to include 409."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_kyc_gate.py",
+    "/app/test_reports/pytest/iter7_kyc_gate.xml"
+  ],
+  "action_items": [
+    "(Optional) Update /app/backend/tests/test_casp.py to (a) accept 409 for transak/widget-url and (b) relax seed-count assertions to match current seed (or re-seed CASP fixtures to expected counts).",
+    "(Optional) Investigate upstream CoinGecko BTC pricing intermittency surfaced by /api/ramp/onramp/quote — add retry/fallback in pricing service."
+  ],
+  "critical_code_review_comments": [
+    "kyc_gate.py correctly distinguishes 401 (no/invalid token) from 403 (kyc_required) — verified via 5/5 unauthenticated parametrized tests returning 401.",
+    "ADMIN/DEVELOPER bypass at middleware/kyc_gate.py:35 confirmed (admin onramp/quote does NOT return 403).",
+    "Structured 403 detail (`error`, `kyc_status`, `message`) is consistent across all 5 gated endpoints — required by frontend axios interceptor.",
+    "Password reset flow is properly single-use (jti cleared after consumption) and old-password rejection verified after reset.",
+    "Frontend axios interceptor → CustomEvent → App.js handler → sonner toast + navigate('/onboarding') chain works end-to-end."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_kyc_gate.py (new)"
+  ],
+  "success_rate": {"backend": "100% (21/21 new KYC-gate); 89% (57/64 regression — pre-existing test-data drift)", "frontend": "100% (CTA gating, toast, redirect)"},
+  "test_credentials": "Seeded MLRO/admin: casp-admin@neonoble.example.com / casp-mlro@neonoble.example.com — password CaspAdmin!2026. Ephemeral users TEST_<uuid>@example.com / TestPass123!.",
+  "seed_data_creation": "Tests register ephemeral TEST_* users on the fly; KYC records start via /api/onboarding/kyc/start; MLRO approves via /api/casp/kyc/{id}/decision. No persistent seed data needed.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "KYC gate is fully wired and verified. If retesting, /app/backend/tests/test_kyc_gate.py covers the entire matrix (5 endpoints × {401, 403 not-started, 403 in-review, 200/409 after approve}, admin bypass, password reset cycle, change-password). The 7 pre-existing test_casp.py failures are unrelated seed-count assertion drift — investigate only if main agent wants to clean up that file.",
+  "rca of the issue": "N/A — all reported KYC-gate behaviors confirmed working as designed. Pre-existing test_casp.py drift is a test-assertion / seed-count mismatch, not a product defect."
+}

@@ -1,0 +1,339 @@
+{
+  "ran_at": "2026-06-01T16:04:50.656774+00:00",
+  "total": 55,
+  "passed": 55,
+  "failed": 0,
+  "success_pct": 100.0,
+  "operations": [
+    {
+      "block": "AUTH",
+      "op": "login admin",
+      "ok": true,
+      "detail": "role=ADMIN"
+    },
+    {
+      "block": "AUTH",
+      "op": "login mlro",
+      "ok": true,
+      "detail": "role=ADMIN"
+    },
+    {
+      "block": "AUTH",
+      "op": "login trader",
+      "ok": true,
+      "detail": "role=ADMIN"
+    },
+    {
+      "block": "AUTH",
+      "op": "login risk",
+      "ok": true,
+      "detail": "role=ADMIN"
+    },
+    {
+      "block": "AUTH",
+      "op": "login treasury",
+      "ok": true,
+      "detail": "role=ADMIN"
+    },
+    {
+      "block": "KPI",
+      "op": "GET /casp/dashboard",
+      "ok": true,
+      "detail": "kyc_pending=9 aml_open=1 wallets=0"
+    },
+    {
+      "block": "B1.KYC",
+      "op": "Register new customer",
+      "ok": true,
+      "detail": "e2e_customer_1b0ba4e6@example.com"
+    },
+    {
+      "block": "B1.KYC",
+      "op": "GET /onboarding/my-kyc (NOT_STARTED)",
+      "ok": true,
+      "detail": "status=NOT_STARTED"
+    },
+    {
+      "block": "B1.KYC",
+      "op": "POST /onboarding/kyc/start",
+      "ok": true,
+      "detail": "kyc_id=c06cc9dc"
+    },
+    {
+      "block": "B1.KYC",
+      "op": "Upload ID_FRONT",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "block": "B1.KYC",
+      "op": "Upload ID_BACK",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "block": "B1.KYC",
+      "op": "Upload SELFIE",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "block": "B1.KYC",
+      "op": "GET /onboarding/my-kyc (IN_REVIEW)",
+      "ok": true,
+      "detail": "status=IN_REVIEW"
+    },
+    {
+      "block": "B1.KYC",
+      "op": "MLRO approves KYC",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "block": "B1.KYC",
+      "op": "List KYC records",
+      "ok": true,
+      "detail": "count=5"
+    },
+    {
+      "block": "B1.KYB",
+      "op": "List KYB records",
+      "ok": true,
+      "detail": "count=0"
+    },
+    {
+      "block": "B1.Risk",
+      "op": "Upsert risk rating",
+      "ok": true,
+      "detail": "rating=LOW"
+    },
+    {
+      "block": "B1.Risk",
+      "op": "List risk ratings",
+      "ok": true,
+      "detail": "count=1"
+    },
+    {
+      "block": "B1.Sanc",
+      "op": "GET /casp/sanctions/status",
+      "ok": true,
+      "detail": "ofac=8 mixers=2"
+    },
+    {
+      "block": "B1.Sanc",
+      "op": "POST /casp/sanctions/refresh",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "block": "B2.AML",
+      "op": "Screen clean address",
+      "ok": true,
+      "detail": "risk_score=0.0 critical=False"
+    },
+    {
+      "block": "B2.AML",
+      "op": "Screen sanctioned (Tornado Cash)",
+      "ok": true,
+      "detail": "risk_score=100.0 critical=True"
+    },
+    {
+      "block": "B2.AML",
+      "op": "List OPEN alerts",
+      "ok": true,
+      "detail": "count=2"
+    },
+    {
+      "block": "B2.AML",
+      "op": "Resolve alert (false positive)",
+      "ok": true,
+      "detail": "36aca448"
+    },
+    {
+      "block": "B2.TR",
+      "op": "Create outgoing Travel-Rule",
+      "ok": true,
+      "detail": "id=1bc9e90d"
+    },
+    {
+      "block": "B2.TR",
+      "op": "List Travel-Rule transfers",
+      "ok": true,
+      "detail": "count=1"
+    },
+    {
+      "block": "B2.TR",
+      "op": "Upsert peer VASP",
+      "ok": true,
+      "detail": "did:web:partner-8b15b6.example"
+    },
+    {
+      "block": "B2.TR",
+      "op": "List peer VASPs",
+      "ok": true,
+      "detail": "count=1"
+    },
+    {
+      "block": "B2.TR",
+      "op": "List TRP inbox",
+      "ok": true,
+      "detail": "count=0"
+    },
+    {
+      "block": "B2.TR",
+      "op": "Delete peer VASP",
+      "ok": true,
+      "detail": "did:web:partner-8b15b6.example"
+    },
+    {
+      "block": "B2.SAR",
+      "op": "Draft SAR",
+      "ok": true,
+      "detail": "sar_number=SAR-2026-00001"
+    },
+    {
+      "block": "B2.SAR",
+      "op": "List SARs",
+      "ok": true,
+      "detail": "count=1"
+    },
+    {
+      "block": "B3.Custody",
+      "op": "List wallets",
+      "ok": true,
+      "detail": "count=0"
+    },
+    {
+      "block": "B3.Custody",
+      "op": "Provision segregated wallet",
+      "ok": true,
+      "detail": "addr=0x7f895fbf9d9c6ff9..."
+    },
+    {
+      "block": "B3.PoR",
+      "op": "Generate PoR snapshot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "block": "B3.PoR",
+      "op": "Get latest PoR",
+      "ok": true,
+      "detail": "coverage=1.000 merkle=48dbcff26cfc"
+    },
+    {
+      "block": "B4.OTC",
+      "op": "Quote small (\u20ac9k, no approval)",
+      "ok": true,
+      "detail": "status=QUOTED"
+    },
+    {
+      "block": "B4.OTC",
+      "op": "Execute small (direct)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "block": "B4.OTC",
+      "op": "Quote large (\u20ac120k, 4-eye)",
+      "ok": true,
+      "detail": "status=AWAITING_APPROVAL approval_req=True"
+    },
+    {
+      "block": "B4.OTC",
+      "op": "Self-approval blocked (4-eye)",
+      "ok": true,
+      "detail": "code=400 detail={'detail': {'error': 'self_approval_forbidden', 'd"
+    },
+    {
+      "block": "B4.OTC",
+      "op": "MLRO approves large quote",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "block": "B4.OTC",
+      "op": "Execute large (after approval)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "block": "B4.OTC",
+      "op": "List EXECUTED OTC quotes",
+      "ok": true,
+      "detail": "count=3"
+    },
+    {
+      "block": "B5.Rep",
+      "op": "Generate MiCAR T+1 report",
+      "ok": true,
+      "detail": "otc_txns=3"
+    },
+    {
+      "block": "B5.Rep",
+      "op": "List regulatory reports",
+      "ok": true,
+      "detail": "count=6"
+    },
+    {
+      "block": "B5.Cap",
+      "op": "Upsert capital snapshot",
+      "ok": true,
+      "detail": "status=COMPLIANT coverage=2.24"
+    },
+    {
+      "block": "B6.Compl",
+      "op": "Create complaint",
+      "ok": true,
+      "detail": "ref=CMP-2026-00002"
+    },
+    {
+      "block": "B6.Compl",
+      "op": "List complaints",
+      "ok": true,
+      "detail": "count=2"
+    },
+    {
+      "block": "B6.Disc",
+      "op": "List asset disclosures",
+      "ok": true,
+      "detail": "count=0"
+    },
+    {
+      "block": "B7.Gov",
+      "op": "List admin users",
+      "ok": true,
+      "detail": "count=5"
+    },
+    {
+      "block": "B7.Gov",
+      "op": "List operational incidents",
+      "ok": true,
+      "detail": "count=1"
+    },
+    {
+      "block": "B7.Gov",
+      "op": "List conflicts of interest",
+      "ok": true,
+      "detail": "count=0"
+    },
+    {
+      "block": "AUDIT",
+      "op": "List newest audit entries",
+      "ok": true,
+      "detail": "sample=10"
+    },
+    {
+      "block": "AUDIT",
+      "op": "Verify hash-chain integrity",
+      "ok": true,
+      "detail": "verified=True checked=89"
+    },
+    {
+      "block": "SETUP",
+      "op": "GET /casp/setup/status",
+      "ok": true,
+      "detail": "live=True autonomous=True completeness=80%"
+    }
+  ]
+}
