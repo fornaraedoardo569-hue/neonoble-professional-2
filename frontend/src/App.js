@@ -18,7 +18,6 @@ import { Toaster } from "sonner";
 import { toast } from "sonner";
 
 // Pages
-import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
